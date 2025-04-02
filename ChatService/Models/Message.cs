@@ -7,13 +7,13 @@ public partial class Message
 {
     public Guid MessageId { get; set; }
 
-    public Guid? SenderId { get; set; }
+    public Guid SenderId { get; set; }
 
-    public Guid? ReceiverId { get; set; }
+    public Guid ReceiverId { get; set; }
 
     public string? Type { get; set; }
 
-    public string? Content { get; set; }
+    public string Content { get; set; } = null!;
 
     public DateTime? CreatedDate { get; set; }
 

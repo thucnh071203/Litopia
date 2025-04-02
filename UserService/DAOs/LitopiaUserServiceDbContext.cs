@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using UserService.Models;
 
-namespace UserService.DAOs;
+namespace UserService.Models;
 
 public partial class LitopiaUserServiceDbContext : DbContext
 {
@@ -42,10 +41,12 @@ public partial class LitopiaUserServiceDbContext : DbContext
 
             entity.HasOne(d => d.Receiver).WithMany(p => p.FriendRequestReceivers)
                 .HasForeignKey(d => d.ReceiverId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__FriendReq__Recei__4BAC3F29");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.FriendRequestSenders)
                 .HasForeignKey(d => d.SenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__FriendReq__Sende__4AB81AF0");
         });
 
@@ -90,7 +91,7 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(255);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
-            entity.Property(e => e.Password).HasMaxLength(255);
+            entity.Property(e => e.Password).HasMaxLength(64);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PhoneConfirmed).HasDefaultValue(false);
             entity.Property(e => e.ReportCount).HasDefaultValue(0);
@@ -99,6 +100,7 @@ public partial class LitopiaUserServiceDbContext : DbContext
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__412EB0B6");
         });
 

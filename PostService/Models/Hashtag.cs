@@ -7,7 +7,7 @@ public partial class Hashtag
 {
     public Guid HashtagId { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public int? UsageCount { get; set; }
 

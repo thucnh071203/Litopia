@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using PostService.Models;
 
-namespace PostService.DAOs;
+namespace PostService.Models;
 
 public partial class LitopiaPostServiceDbContext : DbContext
 {
@@ -49,6 +48,7 @@ public partial class LitopiaPostServiceDbContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Comments__PostId__4E88ABD4");
 
             entity.HasMany(d => d.Comments).WithMany(p => p.Replies)
@@ -109,6 +109,7 @@ public partial class LitopiaPostServiceDbContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Images)
                 .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Images__PostId__4AB81AF0");
         });
 
@@ -167,6 +168,7 @@ public partial class LitopiaPostServiceDbContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Reactions)
                 .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Reactions__PostI__5812160E");
         });
 
@@ -184,6 +186,7 @@ public partial class LitopiaPostServiceDbContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Reports)
                 .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Reports__PostId__5DCAEF64");
         });
 

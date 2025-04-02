@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChatService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatService.DAOs;
+namespace ChatService.Models;
 
 public partial class LitopiaChatServiceDbContext : DbContext
 {
@@ -46,7 +45,6 @@ public partial class LitopiaChatServiceDbContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.GroupName).HasMaxLength(100);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsApprovalRequired).HasDefaultValue(false);
             entity.Property(e => e.IsPublic).HasDefaultValue(true);
         });
 
@@ -61,6 +59,7 @@ public partial class LitopiaChatServiceDbContext : DbContext
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupBooks)
                 .HasForeignKey(d => d.GroupId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__GroupBook__Group__52593CB8");
         });
 
@@ -73,6 +72,7 @@ public partial class LitopiaChatServiceDbContext : DbContext
 
             entity.HasOne(d => d.GroupBook).WithMany(p => p.GroupBookNotes)
                 .HasForeignKey(d => d.GroupBookId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__GroupBook__Group__5535A963");
         });
 
@@ -89,6 +89,7 @@ public partial class LitopiaChatServiceDbContext : DbContext
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupMembers)
                 .HasForeignKey(d => d.GroupId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__GroupMemb__Group__4BAC3F29");
         });
 
