@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace UserService.Models;
 
@@ -39,9 +40,12 @@ public partial class User
 
     public bool? IsDeleted { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestReceivers { get; set; } = new List<FriendRequest>();
-
+    
+    [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestSenders { get; set; } = new List<FriendRequest>();
 
+    [JsonIgnore]
     public virtual Role Role { get; set; } = null!;
 }

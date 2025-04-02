@@ -1,4 +1,6 @@
-﻿namespace ChatService.DAOs
+﻿using ChatService.Models;
+
+namespace ChatService.DAOs
 {
     public class SingletonBase<T> where T : class, new()
     {

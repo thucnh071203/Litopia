@@ -1,4 +1,6 @@
-﻿namespace BookService.DAOs
+﻿using BookService.Models;
+
+namespace BookService.DAOs
 {
     public class SingletonBase<T> where T : class, new()
     {

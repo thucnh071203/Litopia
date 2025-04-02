@@ -1,4 +1,6 @@
-﻿namespace PostService.DAOs
+﻿using PostService.Models;
+
+namespace PostService.DAOs
 {
     public class SingletonBase<T> where T : class, new()
     {
