@@ -26,14 +26,21 @@ namespace UserService.DAOs
                 .FirstOrDefaultAsync(u => u.UserId == userId && (u.IsDeleted != true));
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .ToListAsync();
+        }
+
+        public async Task<List<User>> GetAllUsersAvailableAsync()
         {
             return await _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.IsDeleted != true)
                 .ToListAsync();
         }
-
+        
         public async Task<User> CreateAsync(User user)
         {
             _context.Users.Add(user);

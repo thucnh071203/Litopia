@@ -19,8 +19,6 @@ public partial class LitopiaUserServiceDbContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
-    public virtual DbSet<RolePermission> RolePermissions { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -58,18 +56,6 @@ public partial class LitopiaUserServiceDbContext : DbContext
 
             entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.RoleName).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<RolePermission>(entity =>
-        {
-            entity.HasKey(e => new { e.RoleId, e.Permission }).HasName("PK__RolePerm__35A6BD9456C5EBE9");
-
-            entity.Property(e => e.Permission).HasMaxLength(50);
-
-            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__RolePermi__RoleI__3B75D760");
         });
 
         modelBuilder.Entity<User>(entity =>

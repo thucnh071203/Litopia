@@ -7,7 +7,10 @@ using UserService.DAOs;
 using UserService.Helpers;
 using UserService.Models;
 using UserService.Repositories;
-using UserService.Services;
+using UserService.Repositories.Implement;
+using UserService.Repositories.Interfaces;
+using UserService.Services.Implement;
+using UserService.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

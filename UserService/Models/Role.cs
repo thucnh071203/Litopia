@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace UserService.Models;
 
@@ -8,8 +9,6 @@ public partial class Role
     public Guid RoleId { get; set; }
 
     public string? RoleName { get; set; }
-
-    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
-
+    [JsonIgnore]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

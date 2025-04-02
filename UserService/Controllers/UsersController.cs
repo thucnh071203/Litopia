@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UserService.DTOs;
 using UserService.Models;
-using UserService.Services;
+using UserService.Services.Interfaces;
 
 namespace UserService.Controllers
 {
@@ -19,15 +19,23 @@ namespace UserService.Controllers
         }
 
         [HttpGet("GetAll")]
-        [Authorize(Roles = "Admin,Staff")]
+        //[Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _usersService.GetAllAsync();
+            var users = await _usersService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("GetAllAvailable")]
+        //[Authorize(Roles = "Admin,Staff")]
+        public async Task<IActionResult> GetAllAvailable()
+        {
+            var users = await _usersService.GetAllUsersAvailableAsync();
             return Ok(users);
         }
 
         [HttpGet("GetById/{userId}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetById(Guid userId)
         {
             var user = await _usersService.GetByIdAsync(userId);
@@ -35,19 +43,21 @@ namespace UserService.Controllers
         }
 
         [HttpPut("Update/{userId}")]
-        [Authorize]
-        public async Task<IActionResult> Update(Guid userId, [FromBody] User user)
+        //[Authorize]
+        public async Task<IActionResult> Update(Guid userId, [FromBody] UserDTO userDto)
         {
-            var updatedUser = await _usersService.UpdateAsync(userId, user);
+            var updatedUser = await _usersService.UpdateAsync(userId, userDto);
+            if (updatedUser == null)
+                return NotFound("User not found");
             return Ok(updatedUser);
         }
 
-        [HttpDelete("BanUser/{userId}")]
-        [Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> BanUser(Guid userId)
+        [HttpDelete("Delete/{userId}")]
+        //[Authorize(Roles = "Admin,Staff")]
+        public async Task<IActionResult> Delete(Guid userId)
         {
-            await _usersService.BanUserAsync(userId);
-            return NoContent();
+            await _usersService.DeleteAsync(userId);
+            return Ok("Delete successfully!");
         }
     }
 }
