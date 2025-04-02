@@ -2,7 +2,7 @@
 {
     public class LoginDTO
     {
-        public string UsernameOrEmail { get; set; }
-        public string Password { get; set; }
+        public string Identifier { get; set; } = null!; // Email, Username hoặc PhoneNumber (Thêm phone sau)
+        public string Password { get; set; } = null!;
     }
 }

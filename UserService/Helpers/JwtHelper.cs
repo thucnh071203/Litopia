@@ -15,7 +15,7 @@ namespace UserService.Helpers
             _configuration = configuration;
         }
 
-        public string GenerateToken(User user, Role role)
+        public string GenerateToken(User user, string roleName)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
@@ -26,7 +26,7 @@ namespace UserService.Helpers
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, role.RoleName)
+                new Claim(ClaimTypes.Role, roleName)
             };
 
             var token = new JwtSecurityToken(

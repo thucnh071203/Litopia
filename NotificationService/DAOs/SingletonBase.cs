@@ -1,4 +1,6 @@
-﻿namespace NotificationService.DAOs
+﻿using NotificationService.Models;
+
+namespace NotificationService.DAOs
 {
     public class SingletonBase<T> where T : class, new()
     {

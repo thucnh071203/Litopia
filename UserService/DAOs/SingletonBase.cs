@@ -1,4 +1,6 @@
-﻿namespace UserService.DAOs
+﻿using UserService.Models;
+
+namespace UserService.DAOs
 {
     public class SingletonBase<T> where T : class, new()
     {
