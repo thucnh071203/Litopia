@@ -7,9 +7,9 @@ public partial class GroupBook
 {
     public Guid GroupBookId { get; set; }
 
-    public Guid? GroupId { get; set; }
+    public Guid GroupId { get; set; }
 
-    public Guid? BookId { get; set; }
+    public Guid BookId { get; set; }
 
     public string? CurrentChapter { get; set; }
 
@@ -19,7 +19,7 @@ public partial class GroupBook
 
     public Guid? CreatedBy { get; set; }
 
-    public virtual Group? Group { get; set; }
+    public virtual Group Group { get; set; } = null!;
 
     public virtual ICollection<GroupBookNote> GroupBookNotes { get; set; } = new List<GroupBookNote>();
 }

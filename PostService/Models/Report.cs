@@ -7,11 +7,11 @@ public partial class Report
 {
     public Guid ReportId { get; set; }
 
-    public Guid? PostId { get; set; }
+    public Guid PostId { get; set; }
 
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
 
-    public string? Reason { get; set; }
+    public string Reason { get; set; } = null!;
 
     public DateTime? CreatedDate { get; set; }
 
@@ -21,5 +21,5 @@ public partial class Report
 
     public DateTime? ReviewedDate { get; set; }
 
-    public virtual Post? Post { get; set; }
+    public virtual Post Post { get; set; } = null!;
 }

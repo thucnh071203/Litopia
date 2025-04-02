@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using NotificationService.Models;
 
-namespace NotificationService.DAOs;
+namespace NotificationService.Models;
 
 public partial class LitopiaNotificationServiceDbContext : DbContext
 {

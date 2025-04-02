@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BookService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookService.DAOs;
+namespace BookService.Models;
 
 public partial class LitopiaBookServiceDbContext : DbContext
 {
@@ -62,6 +61,7 @@ public partial class LitopiaBookServiceDbContext : DbContext
 
             entity.HasOne(d => d.Book).WithMany(p => p.BookLikes)
                 .HasForeignKey(d => d.BookId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__BookLikes__BookI__48CFD27E");
         });
 
@@ -89,6 +89,7 @@ public partial class LitopiaBookServiceDbContext : DbContext
 
             entity.HasOne(d => d.Book).WithMany(p => p.Ratings)
                 .HasForeignKey(d => d.BookId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Ratings__BookId__4222D4EF");
         });
 

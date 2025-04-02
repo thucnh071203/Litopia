@@ -7,17 +7,17 @@ public partial class User
 {
     public Guid UserId { get; set; }
 
-    public Guid? RoleId { get; set; }
+    public Guid RoleId { get; set; }
 
-    public string? FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
-    public string? Avatar { get; set; }
+    public string Avatar { get; set; } = null!;
 
-    public string? Username { get; set; }
+    public string Username { get; set; } = null!;
 
     public string? Password { get; set; }
 
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     public bool? EmailConfirmed { get; set; }
 
@@ -43,5 +43,5 @@ public partial class User
 
     public virtual ICollection<FriendRequest> FriendRequestSenders { get; set; } = new List<FriendRequest>();
 
-    public virtual Role? Role { get; set; }
+    public virtual Role Role { get; set; } = null!;
 }

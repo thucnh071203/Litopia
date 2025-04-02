@@ -7,13 +7,13 @@ public partial class Group
 {
     public Guid GroupId { get; set; }
 
-    public string? GroupName { get; set; }
+    public string GroupName { get; set; } = null!;
 
-    public Guid? CreatorId { get; set; }
+    public Guid CreatorId { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 
-    public bool? IsApprovalRequired { get; set; }
+    public bool IsApprovalRequired { get; set; }
 
     public bool? IsActive { get; set; }
 

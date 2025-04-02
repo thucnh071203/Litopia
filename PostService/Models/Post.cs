@@ -7,9 +7,9 @@ public partial class Post
 {
     public Guid PostId { get; set; }
 
-    public Guid? AuthorId { get; set; }
+    public Guid UserId { get; set; }
 
-    public string? Title { get; set; }
+    public string Title { get; set; } = null!;
 
     public string? Content { get; set; }
 
