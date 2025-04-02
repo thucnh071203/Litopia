@@ -39,13 +39,10 @@ public partial class User
     public int? ReportCount { get; set; }
 
     public bool? IsDeleted { get; set; }
-
     [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestReceivers { get; set; } = new List<FriendRequest>();
-    
     [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestSenders { get; set; } = new List<FriendRequest>();
-
     [JsonIgnore]
     public virtual Role Role { get; set; } = null!;
 }
