@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using ChatService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatService.Models;
+namespace ChatService.DAOs;
 
 public partial class LitopiaChatServiceDbContext : DbContext
 {

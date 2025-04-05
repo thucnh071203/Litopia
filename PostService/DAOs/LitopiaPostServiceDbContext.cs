@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using PostService.Models;
 
-namespace PostService.Models;
+namespace PostService.DAOs;
 
 public partial class LitopiaPostServiceDbContext : DbContext
 {

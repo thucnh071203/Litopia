@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NotificationService.Models;
+namespace Shared.Models;
 
 public partial class NotificationCategory
 {

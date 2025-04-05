@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using BookService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookService.Models;
+namespace BookService.DAOs;
 
 public partial class LitopiaBookServiceDbContext : DbContext
 {
