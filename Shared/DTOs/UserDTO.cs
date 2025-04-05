@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace UserService.DTOs
+namespace Shared.DTOs
 {
     public class UserDTO
     {

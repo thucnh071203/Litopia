@@ -1,4 +1,4 @@
-﻿namespace UserService.DTOs
+﻿namespace Shared.DTOs
 {
     public class LoginDTO
     {

@@ -1,5 +1,4 @@
-﻿using UserService.DAOs;
-using UserService.DTOs;
+﻿using Shared.DTOs;
 using UserService.Helpers;
 using UserService.Models;
 using UserService.Repositories.Interfaces;
