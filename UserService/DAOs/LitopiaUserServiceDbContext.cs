@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using UserService.Models;
 
-namespace UserService.Models;
+namespace UserService.DAOs;
 
 public partial class LitopiaUserServiceDbContext : DbContext
 {
