@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UserService.DTOs;
+using Shared.DTOs;
 using UserService.Services.Interfaces;
 
 namespace UserService.Controllers

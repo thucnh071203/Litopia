@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "Noti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{7EF0C695-DAD8-47F1-AE12-E3F86CD127D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{FF2197EE-4D46-4286-8AD3-26FDA04DAF7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{7EF0C695-DAD8-47F1-AE12-E3F86CD127D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EF0C695-DAD8-47F1-AE12-E3F86CD127D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EF0C695-DAD8-47F1-AE12-E3F86CD127D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF2197EE-4D46-4286-8AD3-26FDA04DAF7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF2197EE-4D46-4286-8AD3-26FDA04DAF7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF2197EE-4D46-4286-8AD3-26FDA04DAF7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF2197EE-4D46-4286-8AD3-26FDA04DAF7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

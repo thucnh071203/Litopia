@@ -1,6 +1,17 @@
+﻿using Client.ServiceClient;
+using System.Net.Http.Headers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// Thêm HttpClient với base address đến UserService
+builder.Services.AddHttpClient("UserService", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7001/"); // Thay thế bằng URL của UserService
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+builder.Services.AddScoped<UsersServiceClient>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
