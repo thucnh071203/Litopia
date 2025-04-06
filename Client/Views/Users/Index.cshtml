@@ -1,19 +1,21 @@
 ﻿@model List<Shared.DTOs.UserDTO>
-
+@{
+	ViewData["Title"] = "Home Page";
+}
 <h2>User List</h2>
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Any())
-        {
-            foreach (var user in Model)
+            @foreach (var user in Model)
             {
                 <tr>
                     <td>@user.FullName</td>
@@ -23,10 +25,10 @@
                     </td>
                 </tr>
             }
-        }
-        else
-        {
-            <p>Khong co</p>
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Khong co</p>
+}
