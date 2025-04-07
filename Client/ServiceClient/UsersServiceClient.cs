@@ -12,33 +12,53 @@ namespace Client.ServiceClient
             _httpClient = httpClientFactory.CreateClient("UserService");
         }
 
-        public async Task<List<UserDTO>> GetAllUsersAsync()
+        // Phương thức chung để gọi OData
+        public async Task<List<UserDTO>> GetUsersODataAsync(string odataQuery)
         {
             try
             {
-                var response = await _httpClient.GetAsync("api/users/GetAll");
-
+                var response = await _httpClient.GetAsync($"api/Users?{odataQuery}");
                 if (response.IsSuccessStatusCode)
                 {
-                    // Lấy chuỗi JSON từ response
                     var content = await response.Content.ReadAsStringAsync();
-                    // Deserialize thành List<UserDTO>
                     var users = JsonConvert.DeserializeObject<List<UserDTO>>(content);
                     return users ?? new List<UserDTO>();
                 }
-                else
-                {
-                    // Nếu không thành công, ném ra thông báo lỗi thích hợp
-                    throw new Exception($"Error retrieving users. Status code: {response.StatusCode}");
-                }
+                throw new Exception($"Error retrieving users. Status code: {response.StatusCode}");
             }
             catch (Exception ex)
             {
-                // Log lỗi (nếu cần thiết)
                 Console.Error.WriteLine(ex.Message);
-                throw new Exception("An error occurred while retrieving users. Please try again later.");
+                throw;
             }
         }
 
+        public async Task<UserListsDTO> GetAllUsers()
+        {
+            var result = new UserListsDTO();
+
+            // Tất cả User Available (RoleId = 4, IsDeleted = false)
+            result.AllUsersAvailable = await GetUsersODataAsync("$filter=RoleId eq 4 and IsDeleted eq false");
+
+            // Tất cả User bị ban (RoleId = 4, IsDeleted = true)
+            result.AllUsersBanned = await GetUsersODataAsync("$filter=RoleId eq 4 and IsDeleted eq true");
+
+            // Tất cả Author Available (RoleId = 2, IsDeleted = false)
+            result.AllAuthorsAvailable = await GetUsersODataAsync("$filter=RoleId eq 2 and IsDeleted eq false");
+
+            // Tất cả Author bị ban (RoleId = 2, IsDeleted = true)
+            result.AllAuthorsBanned = await GetUsersODataAsync("$filter=RoleId eq 2 and IsDeleted eq true");
+
+            // Tất cả Staff Available (RoleId = 3, IsDeleted = false)
+            result.AllStaffAvailable = await GetUsersODataAsync("$filter=RoleId eq 3 and IsDeleted eq false");
+
+            // Tất cả Staff bị ban (RoleId = 3, IsDeleted = true)
+            result.AllStaffBanned = await GetUsersODataAsync("$filter=RoleId eq 3 and IsDeleted eq true");
+
+            // Tất cả User có UpToAuthor = true (không lọc RoleId)
+            result.AllUsersUpToAuthor = await GetUsersODataAsync("$filter=UpToAuthor eq true");
+
+            return result;
+        }
     }
 }

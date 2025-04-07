@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UserService.DAOs;
 using UserService.Helpers;
 using UserService.Models;
-using UserService.Repositories;
 using UserService.Repositories.Implement;
 using UserService.Repositories.Interfaces;
 using UserService.Services.Implement;
@@ -14,14 +16,29 @@ using UserService.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DB Connection
 builder.Services.AddDbContext<LitopiaUserServiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceDB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceDB"))
+           .EnableSensitiveDataLogging()
+           .LogTo(Console.WriteLine, LogLevel.Information));
 
-// Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddOData(options => options
+        .Select()
+        .Filter()
+        .OrderBy()
+        .Count()
+        .Expand()
+        .SetMaxTop(100));
+static IEdmModel GetEdmModel()
+{
+    var odataBuilder = new ODataConventionModelBuilder();
+    var userEntity = odataBuilder.EntitySet<User>("Users").EntityType;
+    userEntity.HasKey(u => u.UserId);
+    userEntity.Property(u => u.RoleId);
+    odataBuilder.EntityType<Role>();
+    return odataBuilder.GetEdmModel();
+}
 
-// JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -40,14 +57,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Dependency Injection
 builder.Services.AddScoped<UsersDAO>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddScoped<JwtHelper>();
 
-// Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -71,7 +86,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

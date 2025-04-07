@@ -1,34 +1,59 @@
-﻿@model List<Shared.DTOs.UserDTO>
-@{
-	ViewData["Title"] = "Home Page";
-}
-<h2>User List</h2>
-@if (Model.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+﻿@model Client.ViewModels.UserListViewModel
 
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.FullName</td>
-                    <td>@user.Email</td>
-                    <td>
-                        <a href="@Url.Action("Details", "User", new { id = user.UserId })">View Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<h1>User Lists</h1>
+
+<!-- Form lọc -->
+<form asp-action="Index" method="get">
+    <label for="filterType">Select Filter:</label>
+    <select name="filterType" id="filterType" onchange="this.form.submit()">
+        <option value="">-- Select a filter --</option>
+        <option value="users-available">All Users Available</option>
+        <option value="users-banned">All Users Banned</option>
+        <option value="authors-available">All Authors Available</option>
+        <option value="authors-banned">All Authors Banned</option>
+        <option value="staff-available">All Staff Available</option>
+        <option value="staff-banned">All Staff Banned</option>
+        <option value="uptoauthor-true">All Users with UpToAuthor = true</option>
+    </select>
+</form>
+
+<!-- Hiển thị danh sách đã lọc -->
+@if (Model.FilterType != "none" && Model.Users.Any())
+{
+    <h2>
+        @switch (Model.FilterType.ToLower())
+        {
+            case "users-available":
+                @:All Users Available
+                break;
+            case "users-banned":
+                @:All Users Banned
+                break;
+            case "authors-available":
+                @:All Authors Available
+                break;
+            case "authors-banned":
+                @:All Authors Banned
+                break;
+            case "staff-available":
+                @:All Staff Available
+                break;
+            case "staff-banned":
+                @:All Staff Banned
+                break;
+            case "uptoauthor-true":
+                @:All Users with UpToAuthor = true
+                break;
+        }
+    </h2>
+    <ul>
+        @foreach (var user in Model.Users)
+        {
+            <li>@user.Username - @user.FullName</li>
+        }
+    </ul>
 }
 else
 {
-    <p>Khong co</p>
+    <p>Please select a filter to view users.</p>
 }

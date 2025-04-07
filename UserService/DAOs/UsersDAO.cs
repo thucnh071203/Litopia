@@ -4,7 +4,7 @@ using UserService.Models;
 namespace UserService.DAOs
 {
     public class UsersDAO : SingletonBase<UsersDAO>
-    {
+    {   
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.Users
@@ -23,7 +23,13 @@ namespace UserService.DAOs
         {
             return await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserId == userId && (u.IsDeleted != true));
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        // Trong DAO (UsersDAO)
+        public IQueryable<User> GetUsersQueryable()
+        {
+            return _context.Users.AsNoTracking(); // Không cần Include nếu không dùng $expand
         }
 
         public async Task<List<User>> GetAllUsersAsync()
@@ -40,7 +46,15 @@ namespace UserService.DAOs
                 .Where(u => u.IsDeleted != true)
                 .ToListAsync();
         }
-        
+
+        public async Task<List<User>> GetAllBannedUsersAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.IsDeleted == true)
+                .ToListAsync();
+        }
+
         public async Task<User> CreateAsync(User user)
         {
             _context.Users.Add(user);
