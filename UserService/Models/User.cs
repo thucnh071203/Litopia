@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace UserService.Models;
@@ -8,7 +9,7 @@ public partial class User
 {
     public Guid UserId { get; set; }
 
-    public Guid RoleId { get; set; }
+    public int RoleId { get; set; }
 
     public string FullName { get; set; } = null!;
 
@@ -20,10 +21,12 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
+    [DefaultValue(false)]
     public bool? EmailConfirmed { get; set; }
 
     public string? Phone { get; set; }
 
+    [DefaultValue(false)]
     public bool? PhoneConfirmed { get; set; }
 
     public DateOnly? DateOfBirth { get; set; }
@@ -34,15 +37,21 @@ public partial class User
 
     public DateTime? CreatedDate { get; set; }
 
+    [DefaultValue(false)]
     public bool? UpToAuthor { get; set; }
 
     public int? ReportCount { get; set; }
 
+    [DefaultValue(false)]
     public bool? IsDeleted { get; set; }
+
+    public string? Address { get; set; }
+
+    public string? IdentificationNumber { get; set; }
     [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestReceivers { get; set; } = new List<FriendRequest>();
     [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestSenders { get; set; } = new List<FriendRequest>();
     [JsonIgnore]
-    public virtual Role Role { get; set; } = null!;
+    public virtual Role? Role { get; set; } = null!;
 }

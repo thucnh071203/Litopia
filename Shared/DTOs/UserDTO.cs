@@ -6,7 +6,7 @@ namespace Shared.DTOs
     {
         public Guid UserId { get; set; }
 
-        public Guid RoleId { get; set; }
+        public int RoleId { get; set; }
 
         public string FullName { get; set; } = null!;
 
@@ -23,6 +23,10 @@ namespace Shared.DTOs
         public DateOnly? DateOfBirth { get; set; }
 
         public string? Gender { get; set; }
+
+        public string? Address { get; set; }
+
+        public string? IdentificationNumber { get; set; }
 
         public string? Bio { get; set; }
         [DefaultValue(false)]

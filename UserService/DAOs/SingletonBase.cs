@@ -1,4 +1,4 @@
-﻿using UserService.Models;
+﻿using UserService.DAOs;
 
 namespace UserService.DAOs
 {

@@ -41,21 +41,20 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.HasOne(d => d.Receiver).WithMany(p => p.FriendRequestReceivers)
                 .HasForeignKey(d => d.ReceiverId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__FriendReq__Recei__4BAC3F29");
+                .HasConstraintName("FK__FriendReq__Recei");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.FriendRequestSenders)
                 .HasForeignKey(d => d.SenderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__FriendReq__Sende__4AB81AF0");
+                .HasConstraintName("FK__FriendReq__Sende");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1A88504701");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1A7A7B39D4");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B61609CF5CB78").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160E447266E").IsUnique();
 
-            entity.Property(e => e.RoleId).HasDefaultValueSql("(newid())");
             entity.Property(e => e.RoleName).HasMaxLength(50);
         });
 
@@ -68,8 +67,8 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.HasIndex(e => e.Email, "UQ__Users__A9D105341DEF487B").IsUnique();
 
             entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Avatar).HasMaxLength(255);
-            entity.Property(e => e.Bio).HasMaxLength(500);
+            entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.Bio).HasMaxLength(80);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -77,18 +76,19 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.Property(e => e.EmailConfirmed).HasDefaultValue(false);
             entity.Property(e => e.FullName).HasMaxLength(255);
             entity.Property(e => e.Gender).HasMaxLength(10);
+            entity.Property(e => e.IdentificationNumber).HasMaxLength(50);
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.Password).HasMaxLength(64);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PhoneConfirmed).HasDefaultValue(false);
             entity.Property(e => e.ReportCount).HasDefaultValue(0);
             entity.Property(e => e.UpToAuthor).HasDefaultValue(false);
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.Property(e => e.Username).HasMaxLength(255);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__RoleId__412EB0B6");
+                .HasConstraintName("FK__Users__RoleId");
         });
 
         OnModelCreatingPartial(modelBuilder);
