@@ -83,6 +83,7 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.Property(e => e.PhoneConfirmed).HasDefaultValue(false);
             entity.Property(e => e.ReportCount).HasDefaultValue(0);
             entity.Property(e => e.UpToAuthor).HasDefaultValue(false);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(255);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)

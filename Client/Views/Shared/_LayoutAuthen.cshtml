@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
+    <title>@ViewData["Title"] - Litopia</title>
     <link href="~/css/main.min.css" rel="stylesheet" />
     <link href="~/css/responsive.css" rel="stylesheet" />
     <link href="~/css/style.css" rel="stylesheet" />
@@ -21,7 +21,9 @@
     <div>
         @RenderBody()
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/main.min.js"></script>
     <script src="~/js/script.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -4,9 +4,9 @@ namespace Shared.DTOs
 {
     public class LoginDTO
     {
-        [Required] 
+        [Required(ErrorMessage = "Please enter your Email/Username!")] 
         public string Identifier { get; set; } = null!; // Email, Username hoặc PhoneNumber (Thêm phone sau)
-        [Required] 
+        [Required(ErrorMessage = "Please enter your password!")] 
         public string Password { get; set; } = null!;
     }
 }

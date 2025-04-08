@@ -19,11 +19,12 @@ namespace UserService.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var token = await _usersService.LoginAsync(loginDto);
-            if (token == null)
-                return BadRequest("Invalid username/email or password!"); // 400 nếu đăng nhập thất bại
+            var response = await _usersService.LoginAsync(loginDto);
 
-            return Ok(new { Token = token }); // 200 nếu thành công
+            if (!response.Success)
+                return BadRequest(response); // Trả về DTO với ErrorMessage
+
+            return Ok(response); // Trả về DTO với Token và thông tin khác
         }
 
         [HttpPost("Register")]

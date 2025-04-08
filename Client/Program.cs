@@ -1,9 +1,20 @@
-﻿using Client.ServiceClient;
+﻿using Client.ServiceClient.Implement;
+using Client.ServiceClient.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Add services
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Authen/Login";
+        options.LogoutPath = "/Authen/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Thời gian hết hạn của cookie
+    });
+
 
 // Thêm HttpClient với base address đến UserService
 builder.Services.AddHttpClient("UserService", client =>
@@ -11,7 +22,8 @@ builder.Services.AddHttpClient("UserService", client =>
     client.BaseAddress = new Uri("https://localhost:7001/"); // Thay thế bằng URL của UserService
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 });
-builder.Services.AddScoped<UsersServiceClient>();
+
+builder.Services.AddScoped<IUsersServiceClient, UsersServiceClient>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -28,7 +40,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllerRoute(

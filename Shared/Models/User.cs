@@ -8,7 +8,7 @@ public partial class User
 {
     public Guid UserId { get; set; }
 
-    public Guid RoleId { get; set; }
+    public int RoleId { get; set; }
 
     public string FullName { get; set; } = null!;
 
@@ -34,6 +34,8 @@ public partial class User
 
     public DateTime? CreatedDate { get; set; }
 
+    public DateTime? UpdatedDate { get; set; }
+
     public bool? UpToAuthor { get; set; }
 
     public int? ReportCount { get; set; }
@@ -48,5 +50,5 @@ public partial class User
     [JsonIgnore]
     public virtual ICollection<FriendRequest> FriendRequestSenders { get; set; } = new List<FriendRequest>();
     [JsonIgnore]
-    public virtual Role Role { get; set; } = null!;
+    public virtual Role? Role { get; set; } = null!;
 }

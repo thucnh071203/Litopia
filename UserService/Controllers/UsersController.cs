@@ -28,30 +28,6 @@ namespace UserService.Controllers
             return Ok(users);
         }
 
-        //[HttpGet("GetAll")]
-        ////[Authorize(Roles = "Admin,Staff")]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    var users = await _usersService.GetAllUsersAsync();
-        //    return Ok(users);
-        //}
-
-        //[HttpGet("GetAllAvailable")]
-        ////[Authorize(Roles = "Admin,Staff")]
-        //public async Task<IActionResult> GetAllAvailable()
-        //{
-        //    var users = await _usersService.GetAllUsersAvailableAsync();
-        //    return Ok(users);
-        //}
-
-        //[HttpGet("GetAllBanned")]
-        ////[Authorize(Roles = "Admin,Staff")]
-        //public async Task<IActionResult> GetAllBannedUsersAsync()
-        //{
-        //    var users = await _usersService.GetAllBannedUsersAsync();
-        //    return Ok(users);
-        //}
-
         [HttpGet("GetById/{userId}")]
         //[Authorize]
         public async Task<IActionResult> GetById(Guid userId)
