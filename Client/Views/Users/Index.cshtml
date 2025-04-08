@@ -2,32 +2,40 @@
 
 <h1>User Lists</h1>
 
+<!-- Hiển thị thông báo lỗi nếu có -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-warning">
+        @Model.ErrorMessage
+    </div>
+}
+
 <!-- Form lọc -->
 <form asp-action="Index" method="get">
-    <label for="filterType">Select Filter:</label>
-    <select name="filterType" id="filterType" onchange="this.form.submit()">
+    <label for="filter">Select Filter:</label>
+    <select name="filter" id="filter" onchange="this.form.submit()">
         <option value="">-- Select a filter --</option>
-        <option value="users-available">All Users Available</option>
-        <option value="users-banned">All Users Banned</option>
+        <option value="readers-available">All Readers Available</option>
+        <option value="readers-banned">All Readers Banned</option>
         <option value="authors-available">All Authors Available</option>
         <option value="authors-banned">All Authors Banned</option>
         <option value="staff-available">All Staff Available</option>
         <option value="staff-banned">All Staff Banned</option>
-        <option value="uptoauthor-true">All Users with UpToAuthor = true</option>
+        <option value="uptoauthor">All Readers Up To Author</option>
     </select>
 </form>
 
 <!-- Hiển thị danh sách đã lọc -->
-@if (Model.FilterType != "none" && Model.Users.Any())
+@if (Model.FilterType != "none" && Model.Users.Any() && string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <h2>
         @switch (Model.FilterType.ToLower())
         {
-            case "users-available":
-                @:All Users Available
+            case "readers-available":
+                @:All Readers Available
                 break;
-            case "users-banned":
-                @:All Users Banned
+            case "readers-banned":
+                @:All Readers Banned
                 break;
             case "authors-available":
                 @:All Authors Available
@@ -41,7 +49,7 @@
             case "staff-banned":
                 @:All Staff Banned
                 break;
-            case "uptoauthor-true":
+            case "uptoauthor":
                 @:All Users with UpToAuthor = true
                 break;
         }
@@ -53,7 +61,7 @@
         }
     </ul>
 }
-else
+else if (string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <p>Please select a filter to view users.</p>
 }

@@ -8,9 +8,7 @@ namespace UserService.Repositories.Interfaces
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByIdAsync(Guid userId);
         IQueryable<User> GetUsersQueryable();
-        Task<List<User>> GetAllUsersAsync();
         Task<List<User>> GetAllUsersAvailableAsync();
-        Task<List<User>> GetAllBannedUsersAsync();
         Task<User> CreateAsync(User user);
         Task<User> UpdateAsync(User user);
         Task DeleteAsync(Guid userId);

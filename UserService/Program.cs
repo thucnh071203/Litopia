@@ -29,6 +29,18 @@ builder.Services.AddControllers()
         .Count()
         .Expand()
         .SetMaxTop(100));
+
+// Trong Program.cs của API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 static IEdmModel GetEdmModel()
 {
     var odataBuilder = new ODataConventionModelBuilder();
@@ -91,7 +103,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -19,20 +19,42 @@ namespace UserService.Services.Implement
             _jwtHelper = jwtHelper;
         }
 
-        public async Task<string?> LoginAsync(LoginDTO loginDto)
+        public async Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto)
         {
             // Kiểm tra theo Email
             var user = await _usersRepository.GetByEmailAsync(loginDto.Identifier);
             if (user != null && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
-                return _jwtHelper.GenerateToken(user, user.Role.RoleName);
+            {
+                return new LoginResponseDTO
+                {
+                    Success = true,
+                    Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                    UserId = user.UserId.ToString(),
+                    Username = user.Username,
+                    Role = user.Role.RoleName
+                };
+            }
 
             // Kiểm tra theo Username
             user = await _usersRepository.GetByUsernameAsync(loginDto.Identifier);
             if (user != null && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
-                return _jwtHelper.GenerateToken(user, user.Role.RoleName);
+            {
+                return new LoginResponseDTO
+                {
+                    Success = true,
+                    Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                    UserId = user.UserId.ToString(),
+                    Username = user.Username,
+                    Role = user.Role.RoleName
+                };
+            }
 
-            // Trả về null nếu không tìm thấy user hoặc mật khẩu sai
-            return null;
+            // Trả về thất bại nếu không tìm thấy user hoặc mật khẩu sai
+            return new LoginResponseDTO
+            {
+                Success = false,
+                ErrorMessage = "Invalid username/email or password"
+            };
         }
 
         public async Task<User?> RegisterAsync(RegisterDTO registerDto)
@@ -61,13 +83,8 @@ namespace UserService.Services.Implement
         }
 
         public async Task<User?> GetByIdAsync(Guid userId) => await _usersRepository.GetByIdAsync(userId);
-        public IQueryable<User> GetUsersQueryable()
-        {
-            return _usersRepository.GetUsersQueryable();
-        }
-        public async Task<List<User>> GetAllUsersAsync() => await _usersRepository.GetAllUsersAsync();
+        public IQueryable<User> GetUsersQueryable() => _usersRepository.GetUsersQueryable();
         public async Task<List<User>> GetAllUsersAvailableAsync() => await _usersRepository.GetAllUsersAvailableAsync();
-        public async Task<List<User>> GetAllBannedUsersAsync() => await _usersRepository.GetAllBannedUsersAsync();
         public async Task<User> CreateAsync(User user)
         {
             user.UserId = Guid.NewGuid(); // Sinh UserId mới

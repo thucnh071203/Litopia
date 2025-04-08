@@ -29,14 +29,7 @@ namespace UserService.DAOs
         // Trong DAO (UsersDAO)
         public IQueryable<User> GetUsersQueryable()
         {
-            return _context.Users.AsNoTracking(); // Không cần Include nếu không dùng $expand
-        }
-
-        public async Task<List<User>> GetAllUsersAsync()
-        {
-            return await _context.Users
-                .Include(u => u.Role)
-                .ToListAsync();
+            return _context.Users.AsNoTracking();
         }
 
         public async Task<List<User>> GetAllUsersAvailableAsync()
@@ -44,14 +37,6 @@ namespace UserService.DAOs
             return await _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.IsDeleted != true)
-                .ToListAsync();
-        }
-
-        public async Task<List<User>> GetAllBannedUsersAsync()
-        {
-            return await _context.Users
-                .Include(u => u.Role)
-                .Where(u => u.IsDeleted == true)
                 .ToListAsync();
         }
 
