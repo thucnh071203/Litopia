@@ -67,7 +67,9 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.HasIndex(e => e.Email, "UQ__Users__A9D105341DEF487B").IsUnique();
 
             entity.Property(e => e.UserId).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Address).HasMaxLength(255);
+            entity.Property(e => e.Address)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("((0))");
             entity.Property(e => e.Bio).HasMaxLength(80);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
@@ -77,7 +79,10 @@ public partial class LitopiaUserServiceDbContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(255);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IdentificationNumber).HasMaxLength(50);
-            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.Otp)
+                .HasMaxLength(6)
+                .IsUnicode(false)
+                .HasColumnName("OTP");
             entity.Property(e => e.Password).HasMaxLength(64);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PhoneConfirmed).HasDefaultValue(false);

@@ -57,6 +57,40 @@ namespace UserService.Services.Implement
             };
         }
 
+
+        public async Task<LoginResponseDTO> LoginWithGoogleAsync(LoginGoogleDTO request)
+        {
+            var user = await _usersRepository.GetByEmailAsync(request.Email);
+            if (user == null)
+            {
+                // Tạo tài khoản mới nếu chưa tồn tại
+                user = new User
+                {
+                    UserId = Guid.NewGuid(),
+                    RoleId = 4, // RoleId của "Reader"
+                    Avatar = "123", // Giá trị mặc định
+                    FullName = request.FullName,
+                    Username = request.Email,
+                    Password = _passwordHasher.HashPassword("Password"),
+                    Email = request.Email,
+                    CreatedDate = DateTime.Now,
+                    UpToAuthor = false,
+                    IsDeleted = false // hoặc role mặc định
+                };
+
+                await _usersRepository.CreateAsync(user);
+            }
+
+            return new LoginResponseDTO
+            {
+                Success = true,
+                Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                UserId = user.UserId.ToString(),
+                Username = user.Username,
+                Role = user.Role.RoleName
+            };
+        }
+
         public async Task<User?> RegisterAsync(RegisterDTO registerDto)
         {
             var existingUser = await _usersRepository.GetByUsernameAsync(registerDto.Username) ??
@@ -83,6 +117,7 @@ namespace UserService.Services.Implement
         }
 
         public async Task<User?> GetByIdAsync(Guid userId) => await _usersRepository.GetByIdAsync(userId);
+        public async Task<User?> GetByEmailAsync(string email) => await _usersRepository.GetByEmailAsync(email);
         public IQueryable<User> GetUsersQueryable() => _usersRepository.GetUsersQueryable();
         public async Task<List<User>> GetAllUsersAvailableAsync() => await _usersRepository.GetAllUsersAvailableAsync();
         public async Task<User> CreateAsync(User user)
