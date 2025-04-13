@@ -1,4 +1,6 @@
 ﻿using Shared.DTOs;
+using Shared.EmailService.EmailTemplates;
+using Shared.Helpers;
 using UserService.Helpers;
 using UserService.Models;
 using UserService.Repositories.Interfaces;
@@ -23,7 +25,7 @@ namespace UserService.Services.Implement
         {
             // Kiểm tra theo Email
             var user = await _usersRepository.GetByEmailAsync(loginDto.Identifier);
-            if (user != null && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
+            if (user != null && user.EmailConfirmed == true && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
             {
                 return new LoginResponseDTO
                 {
@@ -37,7 +39,7 @@ namespace UserService.Services.Implement
 
             // Kiểm tra theo Username
             user = await _usersRepository.GetByUsernameAsync(loginDto.Identifier);
-            if (user != null && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
+            if (user != null && user.EmailConfirmed == true && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
             {
                 return new LoginResponseDTO
                 {
@@ -73,7 +75,7 @@ namespace UserService.Services.Implement
                     Username = request.Email,
                     Password = _passwordHasher.HashPassword("Password"),
                     Email = request.Email,
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = DateTime.UtcNow,
                     UpToAuthor = false,
                     IsDeleted = false // hoặc role mặc định
                 };
@@ -93,21 +95,54 @@ namespace UserService.Services.Implement
 
         public async Task<User?> RegisterAsync(RegisterDTO registerDto)
         {
-            var existingUser = await _usersRepository.GetByUsernameAsync(registerDto.Username) ??
-                               await _usersRepository.GetByEmailAsync(registerDto.Email);
-            if (existingUser != null)
-                return null; // Trả về null nếu username hoặc email đã tồn tại
+            var existingUserByEmail = await _usersRepository.GetByEmailAsync(registerDto.Email);
+            var existingUserByUsername = await _usersRepository.GetByUsernameAsync(registerDto.Username);
 
+            // Nếu email đã xác thực -> không cho đăng ký
+            if (existingUserByEmail != null && existingUserByEmail.EmailConfirmed == true)
+                return null;
+
+            // Nếu username đã xác thực -> không cho đăng ký
+            if (existingUserByUsername != null && existingUserByUsername.EmailConfirmed == true)
+                return null;
+
+            // Nếu Email tồn tại nhưng chưa xác thực -> cập nhật thông tin và trả về
+            if (existingUserByEmail != null && !existingUserByEmail.EmailConfirmed == true)
+            {
+                existingUserByEmail.Username = registerDto.Username;
+                existingUserByEmail.FullName = registerDto.FullName;
+                existingUserByEmail.Password = _passwordHasher.HashPassword(registerDto.Password);
+                existingUserByEmail.CreatedDate = DateTime.UtcNow;
+                existingUserByEmail.UpToAuthor = registerDto.UpToAuthor;
+
+                await _usersRepository.UpdateAsync(existingUserByEmail);
+                return existingUserByEmail;
+            }
+
+            // Nếu Username tồn tại nhưng chưa xác thực -> cập nhật thông tin và trả về
+            if (existingUserByUsername != null && !existingUserByUsername.EmailConfirmed == true)
+            {
+                existingUserByUsername.Email = registerDto.Email;
+                existingUserByUsername.FullName = registerDto.FullName;
+                existingUserByUsername.Password = _passwordHasher.HashPassword(registerDto.Password);
+                existingUserByUsername.CreatedDate = DateTime.UtcNow;
+                existingUserByUsername.UpToAuthor = registerDto.UpToAuthor;
+
+                await _usersRepository.UpdateAsync(existingUserByUsername);
+                return existingUserByUsername;
+            }
+
+            // Nếu chưa tồn tại -> tạo user mới
             var user = new User
             {
                 UserId = Guid.NewGuid(),
-                RoleId = 4, // RoleId của "Reader"
-                Avatar = "123", // Giá trị mặc định
+                RoleId = 4,
+                Avatar = "123", // mặc định
                 FullName = registerDto.FullName,
                 Username = registerDto.Username,
                 Password = _passwordHasher.HashPassword(registerDto.Password),
                 Email = registerDto.Email,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.UtcNow,
                 UpToAuthor = registerDto.UpToAuthor,
                 IsDeleted = false
             };
@@ -116,7 +151,9 @@ namespace UserService.Services.Implement
             return user;
         }
 
+
         public async Task<User?> GetByIdAsync(Guid userId) => await _usersRepository.GetByIdAsync(userId);
+        public async Task<User?> GetByUsernameAsync(string username) => await _usersRepository.GetByUsernameAsync(username);
         public async Task<User?> GetByEmailAsync(string email) => await _usersRepository.GetByEmailAsync(email);
         public IQueryable<User> GetUsersQueryable() => _usersRepository.GetUsersQueryable();
         public async Task<List<User>> GetAllUsersAvailableAsync() => await _usersRepository.GetAllUsersAvailableAsync();
@@ -171,5 +208,66 @@ namespace UserService.Services.Implement
         }
 
         public async Task DeleteAsync(Guid userId) => await _usersRepository.DeleteAsync(userId);
+
+        public async Task<string> GenerateOtpAsync(string email)
+        {
+            // Find the user by email
+            var user = await _usersRepository.GetByEmailAsync(email);
+            if (user == null)
+            {
+                return null; // User not found
+            }
+
+            // Generate OTP
+            string otp = OtpHelper.GenerateOtp();
+
+            // Store OTP and creation time in the user
+            user.Otp = otp;
+            user.OtpCreatedAt = DateTime.UtcNow;
+            await _usersRepository.UpdateAsync(user);
+
+            return otp;
+        }
+
+        public async Task<bool> ConfirmOtpAsync(string email, string otp)
+        {
+            // Find the user by email
+            var user = await _usersRepository.GetByEmailAsync(email);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            // Check if OTP exists and is not expired
+            if (string.IsNullOrEmpty(user.Otp) || user.OtpCreatedAt == null)
+            {
+                return false; // No OTP found
+            }
+
+            // Check OTP expiration (2 minutes = 120 seconds)
+            var timeElapsed = (DateTime.UtcNow - user.OtpCreatedAt.Value).TotalSeconds;
+            if (timeElapsed > 120)
+            {
+                // Clear the OTP after expiration
+                user.Otp = null;
+                user.OtpCreatedAt = null;
+                await _usersRepository.UpdateAsync(user);
+                return false; // OTP expired
+            }
+
+            // Verify OTP
+            if (user.Otp != otp)
+            {
+                return false; // Invalid OTP
+            }
+
+            // OTP is valid, clear it after successful verification
+            user.Otp = null;
+            user.OtpCreatedAt = null;
+            user.EmailConfirmed = true;
+            await _usersRepository.UpdateAsync(user);
+
+            return true;
+        }
     }
 }
