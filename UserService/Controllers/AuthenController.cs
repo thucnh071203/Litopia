@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs;
 using Shared.EmailService;
+using Shared.EmailService.EmailTemplates;
 using UserService.Helpers;
 using UserService.Services.Interfaces;
+using static System.Net.WebRequestMethods;
 
 namespace UserService.Controllers
 {
@@ -49,22 +52,20 @@ namespace UserService.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
-            var existingUserByEmail = await _usersService.GetByIdAsync(
-                (await _usersService.GetAllUsersAvailableAsync()).FirstOrDefault(u => u.Email == registerDto.Email)?.UserId ?? Guid.Empty);
-            if (existingUserByEmail != null)
-                return Conflict("Email already exists"); // 409 nếu email đã tồn tại
+            var result = await _usersService.RegisterAsync(registerDto);
 
-            var existingUserByUsername = await _usersService.GetByIdAsync(
-                (await _usersService.GetAllUsersAvailableAsync()).FirstOrDefault(u => u.Username == registerDto.Username)?.UserId ?? Guid.Empty);
-            if (existingUserByUsername != null)
-                return Conflict("Username already exists"); // 409 nếu username đã tồn tại
+            if (result == null)
+                return Conflict("Email or Username already exists and confirmed");
 
-            var user = await _usersService.RegisterAsync(registerDto);
-            if (user == null)
-                return BadRequest("Registration failed"); // 400 nếu đăng ký thất bại
+            // Send OTP
+            string otp = await _usersService.GenerateOtpAsync(registerDto.Email);
+            var content = $"<p>Your OTP is:</p><div class='otp-box'>{otp}</div><p>It is valid for 2 minutes.</p>";
+            var html = EmailTemplateHelper.EmailConfirm(registerDto.FullName, content);
+            await _emailSender.SendEmailAsync(registerDto.Email, "Confirm Email", html);
 
-            return Ok(user); // 200 nếu thành công
+            return Ok(result);
         }
+
 
         [HttpPut("ChangePassword/{userId}")]
         public async Task<IActionResult> ChangePassword(Guid userId, [FromBody] ChangePasswordDTO changePasswordDto)
@@ -95,21 +96,85 @@ namespace UserService.Controllers
 
 
         [HttpPost("SendEmail")]
-        public async Task<IActionResult> SendEmail([FromBody] EmailRequest request)
+        public async Task<IActionResult> SendEmail([FromBody] EmailRequestDTO request)
         {
             if (string.IsNullOrEmpty(request.ToEmail) || string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.Body))
             {
-                return BadRequest("Please provide To, Subject, and Body");
+                return BadRequest("Please provide ToEmail, Subject, and Body");
             }
 
             try
             {
-                await _emailSender.SendEmailAsync(request.ToEmail, request.Subject, request.Body);
+                var content = "<strong>Congratulations! Your account has been upgraded to an Author.</strong>";
+                var html = EmailTemplateHelper.EmailConfirm(request.ToEmail, content);
+                await _emailSender.SendEmailAsync(request.ToEmail, request.Subject, html);
+
                 return Ok("Email sent successfully!");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Email sending failed: {ex.Message}");
+            }
+        }
+
+        [HttpPut("SendOtp")]
+        public async Task<IActionResult> SendOtp([FromBody] EmailRequestDTO request)
+        {
+            if (string.IsNullOrEmpty(request.ToEmail))
+            {
+                return BadRequest("Please provide ToEmail");
+            }
+
+            try
+            {
+                // Get the OTP from the service
+                string otp = await _usersService.GenerateOtpAsync(request.ToEmail);
+                if (otp == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                // Find the user to get the username for the email template
+                var user = await _usersService.GetByEmailAsync(request.ToEmail);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                // Send OTP via email
+                var content = $"<p>Your OTP is:</p><div class='otp-box'>{otp}</div><p>It is valid for 2 minutes.</p>";
+                var html = EmailTemplateHelper.EmailConfirm(user.FullName, content);
+                await _emailSender.SendEmailAsync(user.Email, "Your OTP Code", html);
+
+                return Ok("OTP sent successfully!");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to send OTP: {ex.Message}");
+            }
+        }
+
+        [HttpPut("ConfirmOtp")]
+        public async Task<IActionResult> ConfirmOtp([FromBody] ConfirmOtpDTO request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Otp))
+            {
+                return BadRequest("Please provide Email and OTP");
+            }
+
+            try
+            {
+                bool isValid = await _usersService.ConfirmOtpAsync(request.Email, request.Otp);
+                if (!isValid)
+                {
+                    return BadRequest("Invalid or expired OTP, or user not found");
+                }
+
+                return Ok("OTP confirmed successfully!");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to confirm OTP: {ex.Message}");
             }
         }
     }

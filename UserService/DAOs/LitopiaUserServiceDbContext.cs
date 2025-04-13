@@ -83,6 +83,9 @@ public partial class LitopiaUserServiceDbContext : DbContext
                 .HasMaxLength(6)
                 .IsUnicode(false)
                 .HasColumnName("OTP");
+            entity.Property(e => e.OtpCreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("OTPCreatedAt");
             entity.Property(e => e.Password).HasMaxLength(64);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PhoneConfirmed).HasDefaultValue(false);

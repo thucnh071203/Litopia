@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Shared.Models;
 
-public class User
+public partial class User
 {
     public Guid UserId { get; set; }
 
@@ -47,6 +47,8 @@ public class User
     public string? IdentificationNumber { get; set; }
 
     public string? Otp { get; set; }
+
+    public DateTime? OtpCreatedAt { get; set; }
     [DefaultValue(false)]
     public bool? IsDeleted { get; set; }
     [JsonIgnore]
@@ -56,3 +58,4 @@ public class User
     [JsonIgnore]
     public virtual Role? Role { get; set; } = null!;
 }
+

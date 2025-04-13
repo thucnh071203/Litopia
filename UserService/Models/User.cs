@@ -46,6 +46,8 @@ public partial class User
     public string? IdentificationNumber { get; set; }
 
     public string? Otp { get; set; }
+
+    public DateTime? OtpCreatedAt { get; set; }
     [DefaultValue(false)]
     public bool? IsDeleted { get; set; }
     [JsonIgnore]
