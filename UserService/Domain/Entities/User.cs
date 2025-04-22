@@ -1,7 +1,8 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using System.ComponentModel;
 
-namespace Shared.Models
+namespace UserService.Domain.Entities
 {
     public class User
     {
@@ -18,13 +19,13 @@ namespace Shared.Models
         public string? Password { get; set; }
         public string Email { get; set; } = null!;
 
-        [BsonDefaultValue(false)]
-        public bool? EmailConfirmed { get; set; } = false;
+        [DefaultValue(false)]
+        public bool? EmailConfirmed { get; set; }
 
         public string? Phone { get; set; }
 
-        [BsonDefaultValue(false)]
-        public bool? PhoneConfirmed { get; set; } = false;
+        [DefaultValue(false)]
+        public bool? PhoneConfirmed { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
 
@@ -34,8 +35,8 @@ namespace Shared.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
 
-        [BsonDefaultValue(false)]
-        public bool? UpToAuthor { get; set; } = false;
+        [DefaultValue(false)]
+        public bool? UpToAuthor { get; set; }
 
         public int? ReportCount { get; set; }
         public string? Address { get; set; }
@@ -43,8 +44,8 @@ namespace Shared.Models
         public string? Otp { get; set; }
         public DateTime? OtpCreatedAt { get; set; }
 
-        [BsonDefaultValue(false)]
-        public bool? IsDeleted { get; set; } = false;
+        [DefaultValue(false)]
+        public bool? IsDeleted { get; set; }
 
     }
 }

@@ -2,9 +2,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using UserService.Models;
+using UserService.Domain.Entities;
 
-namespace UserService.Helpers
+namespace UserService.Infrastructure.Helpers
 {
     public class JwtHelper
     {
@@ -15,7 +15,7 @@ namespace UserService.Helpers
             _configuration = configuration;
         }
 
-        public string GenerateToken(User user, string roleName)
+        public string GenerateToken(User user, string roleId)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
@@ -26,7 +26,7 @@ namespace UserService.Helpers
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, roleName)
+                new Claim(ClaimTypes.Role, roleId)
             };
 
             var token = new JwtSecurityToken(

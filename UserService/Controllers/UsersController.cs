@@ -2,103 +2,80 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using MongoDB.Bson;
 using Shared.DTOs;
 using Shared.EmailService;
 using Shared.EmailService.EmailTemplates;
-using UserService.Models;
-using UserService.Services.Interfaces;
+using UserService.Application.Interfaces;
+using UserService.Application.Services;
+using UserService.Domain.Entities;
+
 
 namespace UserService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
         private readonly IEmailSender _emailSender;
-        public UsersController(IUsersService usersService, IEmailSender emailSender)
+        public UsersController(IUsersService userService, IEmailSender emailSender)
         {
-            _usersService = usersService;
+            _usersService = userService;
             _emailSender = emailSender;
         }
 
-        [HttpGet]
-        [EnableQuery] // Kích hoạt OData
-        //[Authorize(Roles = "Admin,Staff")]
-        public IActionResult GetODataUsers()
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAll() =>
+            Ok(await _usersService.GetAllAsync());
+        
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
-            var users = _usersService.GetUsersQueryable();
-            return Ok(users);
+            var user = await _usersService.GetByIdAsync(id);
+            return user == null ? NotFound("User not found!") : Ok(user);
         }
 
-
-
-        [HttpGet("GetById/{userId}")]
-        //[Authorize]
-        public async Task<IActionResult> GetById(Guid userId)
-        {
-            var user = await _usersService.GetByIdAsync(userId);
-            return Ok(user);
-        }
-
-        [HttpPost("Create")]
-        //[Authorize]
+        [HttpPost("create")]
         public async Task<IActionResult> Create(User user)
         {
-            user = await _usersService.CreateAsync(user);
-            return Ok(user);
+            var created = await _usersService.CreateAsync(user);
+            return CreatedAtAction(nameof(GetById), new { id = created.UserId }, created);
         }
 
-        [HttpPut("Update/{userId}")]
-        //[Authorize]
-        public async Task<IActionResult> Update(Guid userId, [FromBody] User user)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(string id, User user)
         {
-            var updatedUser = await _usersService.UpdateAsync(userId, user);
-            if (updatedUser == null)
-                return NotFound("User not found");
-            return Ok(updatedUser);
+            var updated = await _usersService.GetByIdAsync(id);
+            if (updated == null)
+                return NotFound("User not found!");
+            updated = await _usersService.UpdateAsync(id, user);
+            return Ok(updated);
         }
 
-        [HttpDelete("Delete/{userId}")]
-        //[Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> Delete(Guid userId)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            await _usersService.DeleteAsync(userId);
+            await _usersService.DeleteAsync(id);
             return Ok("Delete successfully!");
         }
 
-        [HttpPut("Restore/{userId}")]
-        //[Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> Restore(Guid userId)
+        [HttpPut("restore/{id}")]
+        public async Task<IActionResult> Restore(string id)
         {
-            var restoredUser = await _usersService.RestoreAsync(userId);
-            if (restoredUser == null)
-                return NotFound("User not found");
-            return Ok("User restored successfully!");
+            await _usersService.RestoreAsync(id);
+            return Ok("Delete successfully!");
         }
 
-        //[HttpPut("ConfirmEmail/{userId}")]
-        //public async Task<IActionResult> ConfirmEmail(Guid userId)
-        //{
-        //    var user = await _usersService.GetByIdAsync(userId);
-        //    if (user == null) 
-        //        return NotFound("User not found");
-
-        //    user.EmailConfirmed = true;
-        //    var updated = await _usersService.UpdateAsync(userId, user);
-
-        //    return Ok(updated);
-        //}
-
-        [HttpPut("UpgradeToAuthor/{userId}")]
-        public async Task<IActionResult> UpgradeToAuthor(Guid userId)
+        [HttpPut("up-to-author/{id}")]
+        public async Task<IActionResult> UpgradeToAuthor(string id)
         {
-            var user = await _usersService.GetByIdAsync(userId);
-            if (user == null) 
+            var user = await _usersService.GetByIdAsync(id);
+            if (user == null)
                 return NotFound("User not found");
 
             user.UpToAuthor = true;
-            var updated = await _usersService.UpdateAsync(userId, user);
+            var updated = await _usersService.UpdateAsync(id, user);
 
             var content = "<p>Congratulations! Your account has been upgraded to an Author.</p>";
             var html = EmailTemplateHelper.EmailConfirm(user.FullName, content);
@@ -107,16 +84,16 @@ namespace UserService.Controllers
             return Ok(updated);
         }
 
-        [HttpPut("AcceptAuthor/{userId}")]
-        public async Task<IActionResult> AcceptAuthor(Guid userId)
+        [HttpPut("accept-author/{id}")]
+        public async Task<IActionResult> AcceptAuthor(string id)
         {
-            var user = await _usersService.GetByIdAsync(userId);
+            var user = await _usersService.GetByIdAsync(id);
             if (user == null)
                 return NotFound("User not found");
 
             user.UpToAuthor = false;
-            user.RoleId = 3;
-            var updated = await _usersService.UpdateAsync(userId, user);
+            user.RoleId = "6807a3224dc09155c419126c";
+            var updated = await _usersService.UpdateAsync(id, user);
 
             var content = "<p>Congratulations! Your account has been upgraded to an Author.</p>";
             var html = EmailTemplateHelper.EmailConfirm(user.FullName, content);

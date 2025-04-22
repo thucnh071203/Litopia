@@ -1,35 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OData;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OData.Edm;
-using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using Shared.EmailService;
+using Shared.Helpers;
 using System.Text;
-using UserService.DAOs;
-using UserService.Helpers;
-using UserService.Models;
-using UserService.Repositories.Implement;
-using UserService.Repositories.Interfaces;
-using UserService.Services.Implement;
-using UserService.Services.Interfaces;
+using UserService.Application.Interfaces;
+using UserService.Application.Services;
+using UserService.Domain.Interfaces;
+using UserService.Infrastructure.Data;
+using UserService.Infrastructure.Helpers;
+using UserService.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddDbContext<LitopiaUserServiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("UserServiceDB"))
-           .EnableSensitiveDataLogging()
-           .LogTo(Console.WriteLine, LogLevel.Information));
-
-builder.Services.AddControllers()
-    .AddOData(options => options
-        .Select()
-        .Filter()
-        .OrderBy()
-        .Count()
-        .Expand()
-        .SetMaxTop(100));
 
 // Trong Program.cs của API
 builder.Services.AddCors(options =>
@@ -42,15 +24,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-static IEdmModel GetEdmModel()
-{
-    var odataBuilder = new ODataConventionModelBuilder();
-    var userEntity = odataBuilder.EntitySet<User>("Users").EntityType;
-    userEntity.HasKey(u => u.UserId);
-    userEntity.Property(u => u.RoleId);
-    odataBuilder.EntityType<Role>();
-    return odataBuilder.GetEdmModel();
-}
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -68,14 +41,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<UsersDAO>();
-builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+// Other DI
+builder.Services.AddSingleton<UserDbContext>();
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddScoped<JwtHelper>();
+
+// Repositories DI
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+
+// Services DI
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
