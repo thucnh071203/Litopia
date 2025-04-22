@@ -51,6 +51,7 @@ namespace Client.Controllers
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity));
 
+                TempData["SuccessMessage"] = "Login successful!";
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)

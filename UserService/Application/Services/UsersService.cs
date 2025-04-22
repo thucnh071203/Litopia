@@ -1,39 +1,39 @@
 ﻿using Shared.DTOs;
-using Shared.EmailService.EmailTemplates;
 using Shared.Helpers;
-using UserService.Helpers;
-using UserService.Models;
-using UserService.Repositories.Interfaces;
-using UserService.Services.Interfaces;
+using UserService.Application.Interfaces;
+using UserService.Domain.Entities;
+using UserService.Domain.Interfaces;
+using UserService.Infrastructure.Helpers;
 
-namespace UserService.Services.Implement
+namespace UserService.Application.Services
 {
     public class UsersService : IUsersService
     {
         private readonly IUsersRepository _usersRepository;
         private readonly PasswordHasher _passwordHasher;
         private readonly JwtHelper _jwtHelper;
-
-        public UsersService(IUsersRepository usersRepository, PasswordHasher passwordHasher, JwtHelper jwtHelper)
+        public UsersService(IUsersRepository userRepository, PasswordHasher passwordHasher, JwtHelper jwtHelper)
         {
-            _usersRepository = usersRepository;
+            _usersRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtHelper = jwtHelper;
         }
+
 
         public async Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto)
         {
             // Kiểm tra theo Email
             var user = await _usersRepository.GetByEmailAsync(loginDto.Identifier);
+            var user1 = user;
             if (user != null && user.EmailConfirmed == true && _passwordHasher.VerifyPassword(loginDto.Password, user.Password))
             {
                 return new LoginResponseDTO
                 {
                     Success = true,
-                    Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                    Token = _jwtHelper.GenerateToken(user, user.RoleId),
                     UserId = user.UserId.ToString(),
                     Username = user.Username,
-                    Role = user.Role.RoleName
+                    Role = user.RoleId
                 };
             }
 
@@ -44,10 +44,10 @@ namespace UserService.Services.Implement
                 return new LoginResponseDTO
                 {
                     Success = true,
-                    Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                    Token = _jwtHelper.GenerateToken(user, user.RoleId),
                     UserId = user.UserId.ToString(),
                     Username = user.Username,
-                    Role = user.Role.RoleName
+                    Role = user.RoleId
                 };
             }
 
@@ -59,7 +59,6 @@ namespace UserService.Services.Implement
             };
         }
 
-
         public async Task<LoginResponseDTO> LoginWithGoogleAsync(LoginGoogleDTO request)
         {
             var user = await _usersRepository.GetByEmailAsync(request.Email);
@@ -68,8 +67,7 @@ namespace UserService.Services.Implement
                 // Tạo tài khoản mới nếu chưa tồn tại
                 user = new User
                 {
-                    UserId = Guid.NewGuid(),
-                    RoleId = 4, // RoleId của "Reader"
+                    RoleId = "6807a3224dc09155c419126d", // RoleId của "Reader"
                     Avatar = "https://res.cloudinary.com/dzdbjmycj/image/upload/v1744558664/default-avatar_usptvx.avif", // Giá trị mặc định
                     FullName = request.FullName,
                     Username = request.Email,
@@ -87,10 +85,10 @@ namespace UserService.Services.Implement
             return new LoginResponseDTO
             {
                 Success = true,
-                Token = _jwtHelper.GenerateToken(user, user.Role.RoleName),
+                Token = _jwtHelper.GenerateToken(user, user.RoleId),
                 UserId = user.UserId.ToString(),
                 Username = user.Username,
-                Role = user.Role.RoleName
+                Role = user.RoleId
             };
         }
 
@@ -116,7 +114,7 @@ namespace UserService.Services.Implement
                 existingUserByEmail.CreatedDate = DateTime.UtcNow;
                 existingUserByEmail.UpToAuthor = registerDto.UpToAuthor;
 
-                await _usersRepository.UpdateAsync(existingUserByEmail);
+                await _usersRepository.UpdateAsync(existingUserByEmail.UserId, existingUserByEmail);
                 return existingUserByEmail;
             }
 
@@ -129,15 +127,14 @@ namespace UserService.Services.Implement
                 existingUserByUsername.CreatedDate = DateTime.UtcNow;
                 existingUserByUsername.UpToAuthor = registerDto.UpToAuthor;
 
-                await _usersRepository.UpdateAsync(existingUserByUsername);
+                await _usersRepository.UpdateAsync(existingUserByUsername.UserId, existingUserByUsername);
                 return existingUserByUsername;
             }
 
             // Nếu chưa tồn tại -> tạo user mới
             var user = new User
             {
-                UserId = Guid.NewGuid(),
-                RoleId = 4,
+                RoleId = "6807a3224dc09155c419126d",
                 Avatar = "123", // mặc định
                 FullName = registerDto.FullName,
                 Username = registerDto.Username,
@@ -152,84 +149,62 @@ namespace UserService.Services.Implement
             return user;
         }
 
-
-        public async Task<User?> GetByIdAsync(Guid userId) => await _usersRepository.GetByIdAsync(userId);
-        public async Task<User?> GetByUsernameAsync(string username) => await _usersRepository.GetByUsernameAsync(username);
-        public async Task<User?> GetByEmailAsync(string email) => await _usersRepository.GetByEmailAsync(email);
-        public IQueryable<User> GetUsersQueryable() => _usersRepository.GetUsersQueryable();
-        public async Task<List<User>> GetAllUsersAvailableAsync() => await _usersRepository.GetAllUsersAvailableAsync();
         public async Task<User> CreateAsync(User user)
         {
-            user.UserId = Guid.NewGuid(); // Sinh UserId mới
-            user.Avatar = "https://res.cloudinary.com/dzdbjmycj/image/upload/v1744558664/default-avatar_usptvx.avif";
             user.Password = _passwordHasher.HashPassword(user.Password);
             return await _usersRepository.CreateAsync(user);
         }
-        public async Task<User?> UpdateAsync(Guid userId, User updatedUser)
+
+        public async Task DeleteAsync(string id)
         {
-            var user = await _usersRepository.GetByIdAsync(userId);
-            if (user == null)
-                return null;
-
-            // Cập nhật RoleId nếu được cung cấp
-            if (updatedUser.RoleId != 0)
-                user.RoleId = updatedUser.RoleId;
-            user.FullName = updatedUser.FullName;
-            user.Avatar = updatedUser.Avatar;
-            if (!string.IsNullOrEmpty(updatedUser.Password))
-                user.Password = _passwordHasher.HashPassword(updatedUser.Password);
-            user.Email = updatedUser.Email;
-            user.EmailConfirmed = updatedUser.EmailConfirmed;
-            user.Phone = updatedUser.Phone;
-            user.PhoneConfirmed = updatedUser.PhoneConfirmed;
-            user.Gender = updatedUser.Gender;
-            user.Bio = updatedUser.Bio;
-            user.UpdatedDate = DateTime.UtcNow;
-            user.DateOfBirth = updatedUser.DateOfBirth;
-            user.UpToAuthor = updatedUser.UpToAuthor;
-            user.ReportCount = updatedUser.ReportCount;
-            user.IsDeleted = updatedUser.IsDeleted;
-            user.Address = updatedUser.Address;
-            user.IdentificationNumber = updatedUser.IdentificationNumber;
-
-
-            await _usersRepository.UpdateAsync(user);
-            return user;
+            await _usersRepository.DeleteAsync(id);
         }
 
-        public async Task<User?> RestoreAsync(Guid userId)
+        public async Task<List<User>> GetAllAsync()
         {
-            var user = await _usersRepository.GetByIdAsync(userId);
-            if (user == null)
-                return null;
-
-            // Chỉ cần cập nhật IsDeleted thành false
-            user.IsDeleted = false;
-
-            await _usersRepository.UpdateAsync(user);
-            return user;
+            return await _usersRepository.GetAllAsync();
         }
 
-        public async Task DeleteAsync(Guid userId) => await _usersRepository.DeleteAsync(userId);
+        public async Task<User> GetByIdAsync(string id)
+        {
+            return await _usersRepository.GetByIdAsync(id);
+        }
+
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            return await _usersRepository.GetByUsernameAsync(username);
+        }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _usersRepository.GetByEmailAsync(email);
+        }
+
+        public async Task RestoreAsync(string id)
+        {
+            await _usersRepository.RestoreAsync(id);
+        }
+
+        public async Task<User> UpdateAsync(string id, User user)
+        {
+            user.Password = _passwordHasher.HashPassword(user.Password);
+            return await _usersRepository.UpdateAsync(id, user);
+        }
 
         public async Task<string> GenerateOtpAsync(string email)
         {
-            // Find the user by email
             var user = await _usersRepository.GetByEmailAsync(email);
             if (user == null)
             {
                 return null; // User not found
             }
 
-            // Generate OTP
-            string otp = OtpHelper.GenerateOtp();
-
             // Store OTP and creation time in the user
-            user.Otp = otp;
+            user.Otp = OtpHelper.GenerateOtp();
             user.OtpCreatedAt = DateTime.UtcNow;
-            await _usersRepository.UpdateAsync(user);
+            await _usersRepository.UpdateAsync(user.UserId, user);
 
-            return otp;
+            return user.Otp;
         }
 
         public async Task<bool> ConfirmOtpAsync(string email, string otp)
@@ -254,7 +229,7 @@ namespace UserService.Services.Implement
                 // Clear the OTP after expiration
                 user.Otp = null;
                 user.OtpCreatedAt = null;
-                await _usersRepository.UpdateAsync(user);
+                await _usersRepository.UpdateAsync(user.UserId, user);
                 return false; // OTP expired
             }
 
@@ -268,7 +243,7 @@ namespace UserService.Services.Implement
             user.Otp = null;
             user.OtpCreatedAt = null;
             user.EmailConfirmed = true;
-            await _usersRepository.UpdateAsync(user);
+            await _usersRepository.UpdateAsync(user.UserId, user);
 
             return true;
         }

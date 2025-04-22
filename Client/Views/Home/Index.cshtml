@@ -2940,3 +2940,22 @@
 		</div>
 	</div>
 </div><!-- The Scrolling Modal image with comment -->
+@section Scripts {
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<script>
+			const notyf = new Notyf();
+			notyf.success("@TempData["SuccessMessage"]");
+		</script>
+	}
+	@if (TempData["ErrorMessage"] != null)
+	{
+		<script>
+			const notyf = new Notyf();
+			notyf.error("@TempData["ErrorMessage"]");
+		</script>
+	}
+}
+
+
+

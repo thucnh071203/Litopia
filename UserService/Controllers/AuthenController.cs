@@ -1,16 +1,13 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shared.DTOs;
 using Shared.EmailService;
 using Shared.EmailService.EmailTemplates;
-using UserService.Helpers;
-using UserService.Services.Interfaces;
-using static System.Net.WebRequestMethods;
+using Shared.Helpers;
+using UserService.Application.Interfaces;
 
 namespace UserService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authen")]
     [ApiController]
     public class AuthenController : ControllerBase
     {
@@ -25,7 +22,7 @@ namespace UserService.Controllers
             _emailSender = emailSender;
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
             var response = await _usersService.LoginAsync(loginDto);
@@ -36,7 +33,7 @@ namespace UserService.Controllers
             return Ok(response); // Trả về DTO với Token và thông tin khác
         }
 
-        [HttpPost("LoginWithGoogle")]
+        [HttpPost("login-with-google")]
         public async Task<IActionResult> LoginWithGoogle([FromBody] LoginGoogleDTO request)
         {
             var result = await _usersService.LoginWithGoogleAsync(request);
@@ -49,7 +46,7 @@ namespace UserService.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
             var result = await _usersService.RegisterAsync(registerDto);
@@ -67,10 +64,10 @@ namespace UserService.Controllers
         }
 
 
-        [HttpPut("ChangePassword/{userId}")]
-        public async Task<IActionResult> ChangePassword(Guid userId, [FromBody] ChangePasswordDTO changePasswordDto)
+        [HttpPut("change-password/{id}")]
+        public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordDTO changePasswordDto)
         {
-            var user = await _usersService.GetByIdAsync(userId);
+            var user = await _usersService.GetByIdAsync(id);
             if (user == null)
                 return NotFound("User not found");
 
@@ -78,14 +75,14 @@ namespace UserService.Controllers
                 return BadRequest("Current password is incorrect!");
 
             user.Password = changePasswordDto.NewPassword;
-            await _usersService.UpdateAsync(userId, user);
+            await _usersService.UpdateAsync(id, user);
             return Ok("Password changed successfully!");
         }
 
-        [HttpPut("SetPassword/{userId}")]
-        public async Task<IActionResult> SetPassword(Guid userId, [FromBody] SetPasswordDTO setPasswordDto)
+        [HttpPut("set-password/{id}")]
+        public async Task<IActionResult> SetPassword(string id, [FromBody] SetPasswordDTO setPasswordDto)
         {
-            var user = await _usersService.GetByIdAsync(userId);
+            var user = await _usersService.GetByIdAsync(id);
             if (user == null)
                 return NotFound("User not found");
 
@@ -94,12 +91,12 @@ namespace UserService.Controllers
 
             user.Password = setPasswordDto.NewPassword;
             user.Otp = null;
-            await _usersService.UpdateAsync(userId, user);
+            await _usersService.UpdateAsync(id, user);
             return Ok("Password set successfully!");
         }
 
 
-        [HttpPost("SendEmail")]
+        [HttpPost("send-email")]
         public async Task<IActionResult> SendEmail([FromBody] EmailRequestDTO request)
         {
             if (string.IsNullOrEmpty(request.ToEmail) || string.IsNullOrEmpty(request.Subject) || string.IsNullOrEmpty(request.Body))
@@ -121,7 +118,7 @@ namespace UserService.Controllers
             }
         }
 
-        [HttpPut("SendOtp")]
+        [HttpPut("send-otp")]
         public async Task<IActionResult> SendOtp([FromBody] EmailRequestDTO request)
         {
             if (string.IsNullOrEmpty(request.ToEmail))
@@ -158,7 +155,7 @@ namespace UserService.Controllers
             }
         }
 
-        [HttpPut("ConfirmOtp")]
+        [HttpPut("confirm-otp")]
         public async Task<IActionResult> ConfirmOtp([FromBody] ConfirmOtpDTO request)
         {
             if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Otp))

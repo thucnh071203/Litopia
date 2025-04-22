@@ -1,4 +1,4 @@
-﻿@model Client.ViewModels.UserListViewModel
+﻿@model Shared.ViewModels.UsersViewModel
 
 <h1>User Lists</h1>
 
@@ -10,19 +10,29 @@
     </div>
 }
 
-<!-- Form lọc -->
+<!-- Form lọc và tìm kiếm -->
 <form asp-action="Index" method="get">
-    <label for="filter">Select Filter:</label>
-    <select name="filter" id="filter" onchange="this.form.submit()">
-        <option value="">-- Select a filter --</option>
-        <option value="readers-available">All Readers Available</option>
-        <option value="readers-banned">All Readers Banned</option>
-        <option value="authors-available">All Authors Available</option>
-        <option value="authors-banned">All Authors Banned</option>
-        <option value="staff-available">All Staff Available</option>
-        <option value="staff-banned">All Staff Banned</option>
-        <option value="uptoauthor">All Readers Up To Author</option>
-    </select>
+    <div class="form-group">
+        <label for="filter">Select Filter:</label>
+        <select name="filter" id="filter" onchange="this.form.submit()">
+            <option value="users-available">-- Select a filter --</option>
+            <option value="users-available">All Users Available</option>
+            <option value="readers-available">All Readers Available</option>
+            <option value="readers-banned">All Readers Banned</option>
+            <option value="authors-available">All Authors Available</option>
+            <option value="authors-banned">All Authors Banned</option>
+            <option value="staff-available">All Staff Available</option>
+            <option value="staff-banned">All Staff Banned</option>
+            <option value="uptoauthor">All Readers Up To Author</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="searchString">Search by FullName, Address, or IdentificationNumber:</label>
+        <input type="text" name="searchString" id="searchString" value="@Model.SearchString" class="form-control" placeholder="Enter search term" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
 </form>
 
 <!-- Hiển thị danh sách đã lọc -->
@@ -31,6 +41,9 @@
     <h2>
         @switch (Model.FilterType.ToLower())
         {
+            case "users-available":
+                @:All Readers Available
+                break;
             case "readers-available":
                 @:All Readers Available
                 break;
@@ -57,11 +70,11 @@
     <ul>
         @foreach (var user in Model.Users)
         {
-            <li>@user.Username - @user.FullName</li>
+            <li>@user.Username - @user.FullName - @user.Address - @user.IdentificationNumber</li>
         }
     </ul>
 }
 else if (string.IsNullOrEmpty(Model.ErrorMessage))
 {
-    <p>Please select a filter to view users.</p>
+    <p>Please select a filter or enter a search term to view users.</p>
 }
