@@ -70,14 +70,15 @@ namespace UserService.Services.Implement
                 {
                     UserId = Guid.NewGuid(),
                     RoleId = 4, // RoleId của "Reader"
-                    Avatar = "123", // Giá trị mặc định
+                    Avatar = "https://res.cloudinary.com/dzdbjmycj/image/upload/v1744558664/default-avatar_usptvx.avif", // Giá trị mặc định
                     FullName = request.FullName,
                     Username = request.Email,
                     Password = _passwordHasher.HashPassword("Password"),
                     Email = request.Email,
                     CreatedDate = DateTime.UtcNow,
                     UpToAuthor = false,
-                    IsDeleted = false // hoặc role mặc định
+                    Otp = "none",
+                    IsDeleted = false
                 };
 
                 await _usersRepository.CreateAsync(user);
@@ -160,6 +161,7 @@ namespace UserService.Services.Implement
         public async Task<User> CreateAsync(User user)
         {
             user.UserId = Guid.NewGuid(); // Sinh UserId mới
+            user.Avatar = "https://res.cloudinary.com/dzdbjmycj/image/upload/v1744558664/default-avatar_usptvx.avif";
             user.Password = _passwordHasher.HashPassword(user.Password);
             return await _usersRepository.CreateAsync(user);
         }
@@ -182,6 +184,7 @@ namespace UserService.Services.Implement
             user.PhoneConfirmed = updatedUser.PhoneConfirmed;
             user.Gender = updatedUser.Gender;
             user.Bio = updatedUser.Bio;
+            user.UpdatedDate = DateTime.UtcNow;
             user.DateOfBirth = updatedUser.DateOfBirth;
             user.UpToAuthor = updatedUser.UpToAuthor;
             user.ReportCount = updatedUser.ReportCount;

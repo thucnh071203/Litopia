@@ -26,7 +26,6 @@ namespace UserService.DAOs
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
-        // Trong DAO (UsersDAO)
         public IQueryable<User> GetUsersQueryable()
         {
             return _context.Users.AsNoTracking();
