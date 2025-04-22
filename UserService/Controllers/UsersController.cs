@@ -31,6 +31,8 @@ namespace UserService.Controllers
             return Ok(users);
         }
 
+
+
         [HttpGet("GetById/{userId}")]
         //[Authorize]
         public async Task<IActionResult> GetById(Guid userId)
@@ -57,6 +59,14 @@ namespace UserService.Controllers
             return Ok(updatedUser);
         }
 
+        [HttpDelete("Delete/{userId}")]
+        //[Authorize(Roles = "Admin,Staff")]
+        public async Task<IActionResult> Delete(Guid userId)
+        {
+            await _usersService.DeleteAsync(userId);
+            return Ok("Delete successfully!");
+        }
+
         [HttpPut("Restore/{userId}")]
         //[Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Restore(Guid userId)
@@ -67,26 +77,18 @@ namespace UserService.Controllers
             return Ok("User restored successfully!");
         }
 
-        [HttpDelete("Delete/{userId}")]
-        //[Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> Delete(Guid userId)
-        {
-            await _usersService.DeleteAsync(userId);
-            return Ok("Delete successfully!");
-        }
+        //[HttpPut("ConfirmEmail/{userId}")]
+        //public async Task<IActionResult> ConfirmEmail(Guid userId)
+        //{
+        //    var user = await _usersService.GetByIdAsync(userId);
+        //    if (user == null) 
+        //        return NotFound("User not found");
 
-        [HttpPut("ConfirmEmail/{userId}")]
-        public async Task<IActionResult> ConfirmEmail(Guid userId)
-        {
-            var user = await _usersService.GetByIdAsync(userId);
-            if (user == null) 
-                return NotFound("User not found");
+        //    user.EmailConfirmed = true;
+        //    var updated = await _usersService.UpdateAsync(userId, user);
 
-            user.EmailConfirmed = true;
-            var updated = await _usersService.UpdateAsync(userId, user);
-
-            return Ok(updated);
-        }
+        //    return Ok(updated);
+        //}
 
         [HttpPut("UpgradeToAuthor/{userId}")]
         public async Task<IActionResult> UpgradeToAuthor(Guid userId)

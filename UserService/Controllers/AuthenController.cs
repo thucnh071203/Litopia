@@ -89,7 +89,11 @@ namespace UserService.Controllers
             if (user == null)
                 return NotFound("User not found");
 
+            if (user.Otp != "none")
+                return BadRequest("Password has been set");
+
             user.Password = setPasswordDto.NewPassword;
+            user.Otp = null;
             await _usersService.UpdateAsync(userId, user);
             return Ok("Password set successfully!");
         }
