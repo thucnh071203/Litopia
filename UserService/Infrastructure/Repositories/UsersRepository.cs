@@ -20,8 +20,10 @@ namespace UserService.Infrastructure.Repositories
             return await _users.Find(_ => true).ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(string id)
+        public async Task<User?> GetByIdAsync(string id)
         {
+            if (!ObjectId.TryParse(id, out _))
+                return null;
             return await _users.Find(u => u.UserId == id && u.IsDeleted != true).SingleOrDefaultAsync();
         }
 
@@ -43,6 +45,8 @@ namespace UserService.Infrastructure.Repositories
 
         public async Task DeleteAsync(string id)
         {
+            if (!ObjectId.TryParse(id, out _))
+                return;
             var filter = Builders<User>.Filter.Where(u => u.UserId == id && u.IsDeleted != true);
             var update = Builders<User>.Update.Set(u => u.IsDeleted, true);
 
@@ -51,6 +55,8 @@ namespace UserService.Infrastructure.Repositories
 
         public async Task RestoreAsync(string id)
         {
+            if (!ObjectId.TryParse(id, out _))
+                return;
             var filter = Builders<User>.Filter.Where(u => u.UserId == id && u.IsDeleted == true);
             var update = Builders<User>.Update.Set(u => u.IsDeleted, false);
 

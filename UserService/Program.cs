@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shared.EmailService;
 using Shared.Helpers;
+using Shared.Hubs;
 using System.Text;
 using UserService.Application.Interfaces;
 using UserService.Application.Services;
@@ -18,9 +19,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
-        builder.AllowAnyOrigin()
+        builder.WithOrigins("http://localhost:3000")
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials(); // Cần cho SignalR
     });
 });
 
@@ -43,6 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 // Other DI
 builder.Services.AddSingleton<UserDbContext>();
@@ -51,10 +54,12 @@ builder.Services.AddScoped<JwtHelper>();
 
 // Repositories DI
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
 
 // Services DI
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IFriendsService, FriendsService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -86,9 +91,12 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/appHub"), appBuilder =>
+{
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+});
 
 app.MapControllers();
-
+app.MapHub<AppHub>("/appHub");
 app.Run();
