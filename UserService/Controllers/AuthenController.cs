@@ -126,33 +126,26 @@ namespace UserService.Controllers
                 return BadRequest("Please provide ToEmail");
             }
 
-            try
+            // Get the OTP from the service
+            string otp = await _usersService.GenerateOtpAsync(request.ToEmail);
+            if (otp == null)
             {
-                // Get the OTP from the service
-                string otp = await _usersService.GenerateOtpAsync(request.ToEmail);
-                if (otp == null)
-                {
-                    return NotFound("User not found");
-                }
-
-                // Find the user to get the username for the email template
-                var user = await _usersService.GetByEmailAsync(request.ToEmail);
-                if (user == null)
-                {
-                    return NotFound("User not found");
-                }
-
-                // Send OTP via email
-                var content = $"<p>Your OTP is:</p><div class='otp-box'>{otp}</div><p>It is valid for 2 minutes.</p>";
-                var html = EmailTemplateHelper.EmailConfirm(user.FullName, content);
-                await _emailSender.SendEmailAsync(user.Email, "Your OTP Code", html);
-
-                return Ok("OTP sent successfully!");
+                return NotFound("User not found");
             }
-            catch (Exception ex)
+
+            // Find the user to get the username for the email template
+            var user = await _usersService.GetByEmailAsync(request.ToEmail);
+            if (user == null)
             {
-                return StatusCode(500, $"Failed to send OTP: {ex.Message}");
+                return NotFound("User not found");
             }
+
+            // Send OTP via email
+            var content = $"<p>Your OTP is:</p><div class='otp-box'>{otp}</div><p>It is valid for 2 minutes.</p>";
+            var html = EmailTemplateHelper.EmailConfirm(user.FullName, content);
+            await _emailSender.SendEmailAsync(user.Email, "Your OTP Code", html);
+
+            return Ok("OTP sent successfully!");
         }
 
         [HttpPut("confirm-otp")]
@@ -163,20 +156,13 @@ namespace UserService.Controllers
                 return BadRequest("Please provide Email and OTP");
             }
 
-            try
+            bool isValid = await _usersService.ConfirmOtpAsync(request.Email, request.Otp);
+            if (!isValid)
             {
-                bool isValid = await _usersService.ConfirmOtpAsync(request.Email, request.Otp);
-                if (!isValid)
-                {
-                    return BadRequest("Invalid or expired OTP, or user not found");
-                }
+                return BadRequest("Invalid or expired OTP, or user not found");
+            }
 
-                return Ok("OTP confirmed successfully!");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Failed to confirm OTP: {ex.Message}");
-            }
+            return Ok("OTP confirmed successfully!");
         }
     }
 }

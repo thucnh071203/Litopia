@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.SignalR;
 using MongoDB.Bson;
 using Shared.DTOs;
 using Shared.EmailService;
 using Shared.EmailService.EmailTemplates;
+using Shared.Hubs;
 using UserService.Application.Interfaces;
 using UserService.Application.Services;
 using UserService.Domain.Entities;
@@ -19,16 +21,20 @@ namespace UserService.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly IEmailSender _emailSender;
+
         public UsersController(IUsersService userService, IEmailSender emailSender)
         {
             _usersService = userService;
             _emailSender = emailSender;
         }
 
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll() =>
-            Ok(await _usersService.GetAllAsync());
-        
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll(string? roleId, bool? isDeleted)
+        {
+            var users = await _usersService.GetAllUsersAsync(roleId, isDeleted);
+            return Ok(users);
+        }
+
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
@@ -40,7 +46,8 @@ namespace UserService.Controllers
         public async Task<IActionResult> Create(User user)
         {
             var created = await _usersService.CreateAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = created.UserId }, created);
+
+            return Ok(created);
         }
 
         [HttpPut("update/{id}")]
@@ -50,12 +57,17 @@ namespace UserService.Controllers
             if (updated == null)
                 return NotFound("User not found!");
             updated = await _usersService.UpdateAsync(id, user);
+
             return Ok(updated);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
+            var user = await _usersService.GetByIdAsync(id);
+            if (user == null)
+                return NotFound("User not found!");
+            
             await _usersService.DeleteAsync(id);
             return Ok("Delete successfully!");
         }
@@ -63,6 +75,10 @@ namespace UserService.Controllers
         [HttpPut("restore/{id}")]
         public async Task<IActionResult> Restore(string id)
         {
+            var user = await _usersService.GetByIdAsync(id);
+            if (user == null)
+                return NotFound("User not found!");
+
             await _usersService.RestoreAsync(id);
             return Ok("Delete successfully!");
         }

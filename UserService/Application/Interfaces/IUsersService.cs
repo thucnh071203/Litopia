@@ -8,7 +8,7 @@ namespace UserService.Application.Interfaces
         Task<LoginResponseDTO> LoginAsync(LoginDTO loginDto);
         Task<LoginResponseDTO> LoginWithGoogleAsync(LoginGoogleDTO request);
         Task<User?> RegisterAsync(RegisterDTO registerDto);
-        Task<List<User>> GetAllAsync();
+        Task<List<User>> GetAllUsersAsync(string? roleId, bool? isDeleted);
         Task<User> GetByIdAsync(string id);
         Task<User?> GetByUsernameAsync(string username);
         Task<User?> GetByEmailAsync(string email);

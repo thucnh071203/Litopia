@@ -15,5 +15,6 @@ namespace UserService.Infrastructure.Data
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
         public IMongoCollection<Role> Roles => _database.GetCollection<Role>("roles");
+        public IMongoCollection<FriendRequest> FriendRequests => _database.GetCollection<FriendRequest>("friend-request");
     }
 }

@@ -160,9 +160,21 @@ namespace UserService.Application.Services
             await _usersRepository.DeleteAsync(id);
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<User>> GetAllUsersAsync(string? roleId, bool? isDeleted)
         {
-            return await _usersRepository.GetAllAsync();
+            var users = await _usersRepository.GetAllAsync();
+
+            if (roleId != null)
+            {
+                users = users.Where(u => u.RoleId == roleId).ToList();
+            }
+
+            if (isDeleted.HasValue)
+            {
+                users = users.Where(u => u.IsDeleted == isDeleted.Value).ToList();
+            }
+
+            return users;
         }
 
         public async Task<User> GetByIdAsync(string id)
