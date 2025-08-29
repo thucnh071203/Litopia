@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Litopia.API", "Litopia.API\Litopia.API.csproj", "{31E7320E-1D40-4FE3-9BDA-08830F4F107A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Litopia.Application", "Litopia.Application\Litopia.Application.csproj", "{253173B4-2228-4CC7-B7EC-BF3EC4660181}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Litopia.Domain", "Litopia.Domain\Litopia.Domain.csproj", "{35FED9D4-2560-4D38-A08A-21465E7411F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Litopia.Infrastructure", "Litopia.Infrastructure\Litopia.Infrastructure.csproj", "{515F4419-2569-40FA-B0FF-D711D4649575}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31E7320E-1D40-4FE3-9BDA-08830F4F107A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E7320E-1D40-4FE3-9BDA-08830F4F107A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E7320E-1D40-4FE3-9BDA-08830F4F107A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E7320E-1D40-4FE3-9BDA-08830F4F107A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{253173B4-2228-4CC7-B7EC-BF3EC4660181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{253173B4-2228-4CC7-B7EC-BF3EC4660181}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{253173B4-2228-4CC7-B7EC-BF3EC4660181}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{253173B4-2228-4CC7-B7EC-BF3EC4660181}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35FED9D4-2560-4D38-A08A-21465E7411F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35FED9D4-2560-4D38-A08A-21465E7411F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35FED9D4-2560-4D38-A08A-21465E7411F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35FED9D4-2560-4D38-A08A-21465E7411F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{515F4419-2569-40FA-B0FF-D711D4649575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{515F4419-2569-40FA-B0FF-D711D4649575}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{515F4419-2569-40FA-B0FF-D711D4649575}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{515F4419-2569-40FA-B0FF-D711D4649575}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55837F8B-18D4-4678-B996-ADDA2485465F}
+	EndGlobalSection
+EndGlobal
